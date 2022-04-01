@@ -204,6 +204,73 @@ int main()
 
 ### 有序输出AAABBBBCCC
 ```c
-#include <stdio.h>
+#include <stdio.h>   
+#include <stdlib.h>   
+#include <pthread.h>   
+#include <unistd.h>   
+#include <sys/types.h>   
+#include <semaphore.h>
+sem_t s_A, s_B, s_C;
+void* p1(void *arg)
+{
+	for(int i=0;i<30;i++)
+    {
+        sem_wait(&s_C);
+	    printf("A\n");
+        int i;
+        sem_getvalue(&s_C, &i);
+        if (i == 0)
+        {
+            sem_post(&s_A);
+            sem_post(&s_A);
+            sem_post(&s_A);
+        }
+	}
+} 
+void* p2(void *arg)
+{
+	for(int i=0;i<30;i++)
+    {
+        sem_wait(&s_A);
+	    printf("B\n");
+        int i;
+        sem_getvalue(&s_A, &i);
+        if (i == 0)
+        {
+            sem_post(&s_B);
+            sem_post(&s_B);
+            sem_post(&s_B);
+        }
+	}
+} 
+void* p3(void *arg)
+{
+	for(int i=0;i<30;i++)
+    {
+        sem_wait(&s_B);
+	    printf("C\n");
+        int i;
+        sem_getvalue(&s_B, &i);
+        if (i == 0)
+        {
+            sem_post(&s_C);
+            sem_post(&s_C);
+            sem_post(&s_C);
+        }
+	}
+} 
 
+int main()  
+{
+    sem_init(&s_A, 0, 0);
+    sem_init(&s_B, 0, 0);
+    sem_init(&s_C, 0, 3);
+	pthread_t tid[3];
+	pthread_create(&tid[0], NULL, p1, NULL);
+	pthread_create(&tid[1], NULL, p2, NULL);
+	pthread_create(&tid[2], NULL, p3, NULL);
+	for (int i = 0; i < 3; i++)
+		pthread_join(tid[i], NULL);
+	printf("main is over\n");
+}
 ```
