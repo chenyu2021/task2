@@ -210,7 +210,7 @@ int main()
 #include <unistd.h>   
 #include <sys/types.h>   
 #include <semaphore.h>
-sem_t s_A, s_B, s_C;
+sem_t s_A, s_B, s_C, s;
 void* p1(void *arg)
 {
 	for(int i=0;i<30;i++)
