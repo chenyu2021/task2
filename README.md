@@ -213,50 +213,47 @@ int main()
 sem_t s_A, s_B, s_C, s;
 void* p1(void *arg)
 {
-	for(int i=0;i<30;i++)
+	for(int i=0;i<3000;i++)
     {
         sem_wait(&s_C);
 	    printf("A\n");
-        int i;
-        sem_getvalue(&s_C, &i);
-        if (i == 0)
-        {
-            sem_post(&s_A);
-            sem_post(&s_A);
-            sem_post(&s_A);
-        }
+        sem_wait(&s);
+        int x;
+        sem_getvalue(&s_C, &x);
+        if (x == 0)
+            for (int j = 0; j < 3; j++)
+                sem_post(&s_A);
+        sem_post(&s);
 	}
 } 
 void* p2(void *arg)
 {
-	for(int i=0;i<30;i++)
+	for(int i=0;i<3000;i++)
     {
         sem_wait(&s_A);
 	    printf("B\n");
-        int i;
-        sem_getvalue(&s_A, &i);
-        if (i == 0)
-        {
-            sem_post(&s_B);
-            sem_post(&s_B);
-            sem_post(&s_B);
-        }
+        sem_wait(&s);
+        int x;
+        sem_getvalue(&s_A, &x);
+        if (x == 0)
+            for (int j = 0; j < 3; j++)
+                sem_post(&s_B);
+        sem_post(&s);
 	}
 } 
 void* p3(void *arg)
 {
-	for(int i=0;i<30;i++)
+	for(int i=0;i<3000;i++)
     {
         sem_wait(&s_B);
 	    printf("C\n");
-        int i;
-        sem_getvalue(&s_B, &i);
-        if (i == 0)
-        {
-            sem_post(&s_C);
-            sem_post(&s_C);
-            sem_post(&s_C);
-        }
+        sem_wait(&s);
+        int x;
+        sem_getvalue(&s_B, &x);
+        if (x == 0)
+            for (int j = 0; j < 3; j++)
+                sem_post(&s_C);
+        sem_post(&s);
 	}
 } 
 
@@ -265,6 +262,7 @@ int main()
     sem_init(&s_A, 0, 0);
     sem_init(&s_B, 0, 0);
     sem_init(&s_C, 0, 3);
+    sem_init(&s, 0, 1);
 	pthread_t tid[3];
 	pthread_create(&tid[0], NULL, p1, NULL);
 	pthread_create(&tid[1], NULL, p2, NULL);
